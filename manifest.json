@@ -2,17 +2,7 @@
   "schema": "skillhub.manifest.v1",
   "repo": "lewisliu620/git-skills",
   "branch": "main",
-  "generatedAt": "2026-10-19T05:36:54Z",
-  "skillCount": 1,
-  "skills": [
-    {
-      "name": "bid-evaluation",
-      "dir": "bid-evaluation",
-      "version": "1.0.0",
-      "note": "初始化导入",
-      "fileCount": 1,
-      "sizeBytes": 2681,
-      "updatedAt": "2026-10-19T05:36:54Z"
-    }
-  ]
+  "generatedAt": "2026-10-19T05:37:16Z",
+  "skillCount": 0,
+  "skills": []
 }
