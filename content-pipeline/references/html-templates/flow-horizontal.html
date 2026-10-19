@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { width:1200px; height:675px; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#FAFBFC; padding:50px 60px; }
+h2 { font-size:28px; color:#333; margin-bottom:30px; text-align:center; }
+.flow { display:flex; align-items:center; justify-content:center; gap:15px; margin-top:40px; }
+.step { background:#fff; border:2px solid #4A90E2; border-radius:12px; padding:20px 18px; width:180px; text-align:center; }
+.step .num { width:32px; height:32px; background:#4A90E2; color:#fff; border-radius:50%; display:inline-block; line-height:32px; font-size:16px; font-weight:bold; margin-bottom:10px; }
+.step .title { font-size:16px; font-weight:bold; color:#333; margin-bottom:6px; }
+.step .desc { font-size:13px; color:#666; line-height:1.5; }
+.arrow { font-size:28px; color:#4A90E2; font-weight:bold; }
+.loop { margin-top:35px; text-align:center; background:#FFF5F5; border:1px dashed #FF6B6B; border-radius:10px; padding:15px; }
+.loop span { font-size:15px; color:#FF6B6B; font-weight:bold; }
+.badge { display:inline-block; background:#7ED321; color:#fff; font-size:13px; padding:4px 12px; border-radius:20px; margin-top:8px; }
+</style></head><body>
+<h2>目标模式工作机制</h2>
+<div class="flow">
+  <div class="step"><div class="num">1</div><div class="title">设定目标</div><div class="desc">列清验收标准<br>数据要新、覆盖几家<br>字数多少、语气如何</div></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="num">2</div><div class="title">AI 执行</div><div class="desc">拆解步骤<br>调用工具<br>产出结果</div></div>
+  <div class="arrow">→</div>
+  <div class="step"><div class="num">3</div><div class="title">逐项自检</div><div class="desc">对照每条目标<br>逐条检查<br>不达标自动返工</div></div>
+  <div class="arrow">→</div>
+  <div class="step" style="border-color:#7ED321;"><div class="num" style="background:#7ED321;">✓</div><div class="title">达标交付</div><div class="desc">每条都满足<br>才给你最终版</div></div>
+</div>
+<div class="loop"><span>↻ 有一条不达标？AI 自动回去改，改完再检查，直到全部满足</span></div>
+</body></html>
