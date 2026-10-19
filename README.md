@@ -12,25 +12,26 @@ skillhub/
 └── <skill-name>/        # 每个 skill 一个目录（SKILL.md + assets + scripts）
 ```
 
-## 手动更新（核心约定）
+## 一次完整更新（脚本驱动，任意终端执行）
 
-**任何同步动作都只在你显式说「更新」时发生，本仓库没有任何自动同步机制（无 webhook、无定时任务）。**
-
-### 一次完整更新（在任意终端执行）
+更新时（只在你显式说「更新」时执行，本仓库无任何自动同步机制）：
 
 ```
-1. 读多维表格「SkillHub 管理台」：
-   · 勾选「上架 GitHub」的 skill → 上架（git add + commit）
-   · 取消勾选的 skill → 下架（git rm，本地文件保留）
-   · 每条记录的「版本」「更新说明」写进 commit message
-2. git pull origin main          # 先拉取其他终端的最新改动
-3. git add <上架的目录> / git rm <下架的目录>
-4. git commit -m "publish <name> v1.x.x: <更新说明>"
-5. git push origin main          # 推送到 GitHub
-6. 回填表格：上次同步版本 / 上次同步时间
+1. 在飞书多维表格「SkillHub 管理台 · Skill 清单」中：
+   · 勾选「上架 GitHub」的 skill → 该 skill 将上架
+   · 取消勾选            → 该 skill 将下架（本地文件保留，可随时重新勾选上架）
+   · 维护每条记录的「版本」「更新说明」→ 会写进 commit message
+2. git pull origin main                          # 先拉取其他终端的改动
+3. python3 scripts/sync_skillhub.py \
+     --base-token <BT> --table-id <TID> --apply  # 读表格 → 上架/下架 → commit
+4. python3 scripts/sync_skillhub.py \
+     --base-token <BT> --table-id <TID> --apply --push   # 推送 GitHub
+   （可选 --write-back 一并回填表格「上次同步版本/时间/本地存在」）
 ```
 
-其他终端下次说「更新」时 `git pull` 即可获得/移除对应 skill。
+- 不加 `--apply` 时是 dry-run，只打印计划不执行。
+- 下架只做 `git rm --cached` 并把目录写进 `.gitignore` 下架区，**本地文件始终保留**；重新勾选后下一次更新自动重新上架。
+- 其他终端下次说「更新」时 `git pull` 即可获得/移除对应 skill。
 
 ## 使用
 
