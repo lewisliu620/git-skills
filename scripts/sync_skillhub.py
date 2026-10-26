@@ -8,7 +8,10 @@ sync_skillhub.py — 「更新 skillhub」同步脚本
   - 取消勾选的 skill           → 下架（git rm --cached + 移入 .gitignore 下架区，本地文件保留）
 
 用法（在 skillhub 仓库根目录执行）：
-  python3 scripts/sync_skillhub.py --base-token <BT> --table-id <TID>                # dry-run：输出同步计划
+  python3 scripts/sync_skillhub.py --base-token <BT> --table-id <TID> [--source-dir <本地skill源目录>]
+                                    # dry-run：检测新增 skill + 输出同步计划（不执行）
+  python3 scripts/sync_skillhub.py --base-token <BT> --table-id <TID> --source-dir <dir> --sync-local
+                                    # 补录新 skill：复制到工作区 + 写入表格（尚未执行 git 同步）
   python3 scripts/sync_skillhub.py --base-token <BT> --table-id <TID> --apply        # 执行 git add/rm + commit
   python3 scripts/sync_skillhub.py --base-token <BT> --table-id <TID> --apply --push # 执行并推送 GitHub
   python3 scripts/sync_skillhub.py --base-token <BT> --table-id <TID> --apply --write-back
@@ -19,6 +22,8 @@ sync_skillhub.py — 「更新 skillhub」同步脚本
 import argparse
 import json
 import os
+import re
+import shutil
 import subprocess
 import sys
 import time
@@ -92,6 +97,59 @@ def cell_text(v):
     if isinstance(v, list):
         return "".join(x.get("text", "") if isinstance(x, dict) else str(x) for x in v)
     return str(v)
+
+
+def is_skill_dir(path):
+    """一个目录算作 skill 的标准：存在 SKILL.md"""
+    return os.path.isdir(path) and os.path.isfile(os.path.join(path, "SKILL.md"))
+
+
+def frontmatter_value(skill_md, key):
+    """从 SKILL.md front matter 提取指定 key 的值"""
+    try:
+        with open(skill_md, encoding="utf-8") as f:
+            head = f.read(4000)
+    except Exception:
+        return ""
+    m = re.search(rf'^{key}:\s*(.+)$', head, re.M)
+    if m:
+        return m.group(1).strip().strip('"\'')
+    return ""
+
+
+def scan_local_skills(source_dir):
+    """扫描本地 skill 源目录，返回 {目录名: {desc, version, files, size}}"""
+    out = {}
+    if not source_dir or not os.path.isdir(source_dir):
+        return out
+    for d in sorted(os.listdir(source_dir)):
+        p = os.path.join(source_dir, d)
+        if not is_skill_dir(p):
+            continue
+        n_files = sum(len(fns) for _, _, fns in os.walk(p))
+        size = sum(os.path.getsize(os.path.join(r, f)) for r, _, fns in os.walk(p) for f in fns)
+        out[d] = {
+            "desc": frontmatter_value(os.path.join(p, "SKILL.md"), "description")[:200],
+            "version": frontmatter_value(os.path.join(p, "SKILL.md"), "version") or "v1.0.0",
+            "files": n_files,
+            "size": size,
+        }
+    return out
+
+
+def backfill_new_skills(base_token, table_id, source_dir):
+    """对比表格，把源目录中未入表的新 skill 复制到工作区并补录表格记录。
+    返回 (新建数量, 新 skill 名列表)；dry 时只返回 (待新建数量, 列表) 不执行。"""
+    table_dirs = set()
+    records = fetch_base_records(base_token, table_id)
+    for rec in records:
+        dd = cell_text(rec.get("本地目录"))
+        if dd:
+            table_dirs.add(dd)
+
+    scanned = scan_local_skills(source_dir)
+    new_dirs = sorted(set(scanned) - table_dirs)
+    return new_dirs, scanned
 
 
 def plan(base_token, table_id, local_names):
@@ -240,13 +298,59 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base-token", required=True)
     ap.add_argument("--table-id", required=True)
+    ap.add_argument("--source-dir", default=None,
+                    help="本地 skill 源目录（如 .user_skills），用于发现并补录新 skill")
+    ap.add_argument("--sync-local", action="store_true",
+                    help="补录新 skill：从源目录复制到工作区并写入表格（随后继续正常流程）")
     ap.add_argument("--apply", action="store_true", help="执行 git add/rm + commit")
     ap.add_argument("--push", action="store_true", help="推送 GitHub")
     ap.add_argument("--write-back", action="store_true", help="回填表格状态")
     args = ap.parse_args()
 
+    # --- 1) 补录新 skill（可选） ---
+    if args.source_dir:
+        new_dirs, scanned = backfill_new_skills(args.base_token, args.table_id, args.source_dir)
+        if new_dirs:
+            print(f"=== 发现 {len(new_dirs)} 个未入表的新 skill ===")
+            for d in new_dirs:
+                print(f"  + {d} (v{scanned[d]['version']}, {scanned[d]['files']} 文件, "
+                      f"{round(scanned[d]['size']/1024/1024,2)} MB)")
+            if args.sync_local:
+                created = []
+                for d in new_dirs:
+                    src = os.path.join(args.source_dir, d)
+                    dst = os.path.join(REPO_ROOT, d)
+                    if not os.path.isdir(dst):
+                        shutil.copytree(src, dst)
+                    info = scanned[d]
+                    created.append({
+                        "Skill 名称": d,
+                        "描述": info["desc"] or "",
+                        "本地存在": "存在",
+                        "本地目录": d,
+                        "体积 MB": round(info["size"] / 1024 / 1024, 2),
+                        "文件数": info["files"],
+                        "版本": info["version"],
+                        "更新说明": "新增导入",
+                        "上架 GitHub": False,
+                    })
+                for i in range(0, len(created), 200):
+                    batch = created[i:i + 200]
+                    r = subprocess.run(
+                        ["lark-cli", "base", "+record-batch-create", "--base-token", args.base_token,
+                         "--table-id", args.table_id, "--json",
+                         json.dumps({"create_records": batch}, ensure_ascii=False), "--as", "user"],
+                        capture_output=True, text=True)
+                    if r.returncode != 0 or '"ok": false' in r.stdout:
+                        raise RuntimeError(f"补录表格失败: {r.stdout[:300]}")
+                print(f"已补录 {len(created)} 条到表格（上架保持未勾选），并复制到工作区。")
+            else:
+                print("（dry-run 未写入；加 --sync-local 执行补录）")
+        else:
+            print("=== 无新 skill 需补录，表格与本地一致 ===")
+
     local_names = set(d for d in os.listdir(REPO_ROOT)
-                      if os.path.isdir(os.path.join(REPO_ROOT, d)) and not d.startswith("."))
+                      if is_skill_dir(os.path.join(REPO_ROOT, d)))
     items = plan(args.base_token, args.table_id, local_names)
     tracked = git_tracked_dirs()
 
