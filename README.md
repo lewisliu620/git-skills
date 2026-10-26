@@ -23,13 +23,17 @@ skillhub/
    · 维护每条记录的「版本」「更新说明」→ 会写进 commit message
 2. git pull origin main                          # 先拉取其他终端的改动
 3. python3 scripts/sync_skillhub.py \
-     --base-token <BT> --table-id <TID> --apply  # 读表格 → 上架/下架 → commit
+     --base-token <BT> --table-id <TID> \
+     --source-dir <本地skill源目录> --sync-local  # 自动补录新 skill 到表格（可选步骤）
 4. python3 scripts/sync_skillhub.py \
+     --base-token <BT> --table-id <TID> --apply  # 读表格 → 上架/下架 → commit
+5. python3 scripts/sync_skillhub.py \
      --base-token <BT> --table-id <TID> --apply --push   # 推送 GitHub
    （可选 --write-back 一并回填表格「上次同步版本/时间/本地存在」）
 ```
 
 - 不加 `--apply` 时是 dry-run，只打印计划不执行。
+- `--source-dir` + `--sync-local`：扫描本地 skill 源目录，把表格里没有的新 skill 自动补录（复制到工作区 + 写入表格，上架保持未勾选），之后继续正常同步。
 - 下架只做 `git rm --cached` 并把目录写进 `.gitignore` 下架区，**本地文件始终保留**；重新勾选后下一次更新自动重新上架。
 - 其他终端下次说「更新」时 `git pull` 即可获得/移除对应 skill。
 
