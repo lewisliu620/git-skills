@@ -391,9 +391,9 @@ def main():
         print("已下架:", ", ".join(it["dir"] for it in to_remove))
 
     if to_add:
+        remove_from_gitignore([it["dir"] for it in to_add])  # 先解除 ignore，再 add
         for it in to_add:
             subprocess.run(["git", "add", it["dir"]], cwd=REPO_ROOT, capture_output=True, text=True)
-        remove_from_gitignore([it["dir"] for it in to_add])
         print("已暂存:", ", ".join(it["dir"] for it in to_add))
 
     # manifest
