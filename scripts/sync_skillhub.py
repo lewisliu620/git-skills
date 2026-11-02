@@ -381,8 +381,14 @@ def main():
         print("\n[dry-run] 未执行 git 操作。确认无误后加 --apply 执行。")
         return 0
     if not to_add and not to_remove:
+        pub_dirs = set(tracked)
+        rebuild_manifest([it for it in items if it["dir"] in pub_dirs])
+        subprocess.run(["git", "add", "manifest.json"], cwd=REPO_ROOT, capture_output=True, text=True)
+        if args.push:
+            sh(["git", "commit", "-m", "update skillhub: manifest 重建", "--allow-empty"])
+            sh(["git", "push", "origin", "main"])
         if args.write_back:
-            write_back(args.base_token, args.table_id, [], [], skipped)
+            write_back(args.base_token, args.table_id, [], [])
             print("已回填表格：上次同步版本 / 时间 / 本地存在。")
         print("\n无变更，无需同步。")
         return 0
@@ -401,8 +407,9 @@ def main():
             subprocess.run(["git", "add", it["dir"]], cwd=REPO_ROOT, capture_output=True, text=True)
         print("已暂存:", ", ".join(it["dir"] for it in to_add))
 
-    # manifest
-    rebuild_manifest(to_add)
+    # manifest（按全部已上架 skill 重建，含本轮新增与历史已上架）
+    pub_dirs = set(tracked) | {it["dir"] for it in to_add}
+    rebuild_manifest([it for it in items if it["dir"] in pub_dirs])
     subprocess.run(["git", "add", "manifest.json", ".gitignore"], cwd=REPO_ROOT, capture_output=True, text=True)
 
     # commit message
