@@ -382,13 +382,14 @@ def main():
         return 0
     if not to_add and not to_remove:
         pub_dirs = set(tracked)
-        rebuild_manifest([it for it in items if it["dir"] in pub_dirs])
+        published = [it for it in items if it["dir"] in pub_dirs]
+        rebuild_manifest(published)
         subprocess.run(["git", "add", "manifest.json"], cwd=REPO_ROOT, capture_output=True, text=True)
         if args.push:
             sh(["git", "commit", "-m", "update skillhub: manifest 重建", "--allow-empty"])
             sh(["git", "push", "origin", "main"])
         if args.write_back:
-            write_back(args.base_token, args.table_id, [], [])
+            write_back(args.base_token, args.table_id, published, [])
             print("已回填表格：上次同步版本 / 时间 / 本地存在。")
         print("\n无变更，无需同步。")
         return 0
