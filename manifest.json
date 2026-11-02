@@ -2,7 +2,7 @@
   "schema": "skillhub.manifest.v1",
   "repo": "lewisliu620/git-skills",
   "branch": "main",
-  "generatedAt": "2026-11-01T07:09:40Z",
+  "generatedAt": "2026-11-02T00:44:32Z",
   "skillCount": 1,
   "skills": [
     {
@@ -12,7 +12,7 @@
       "note": "初始化导入",
       "fileCount": 1,
       "sizeBytes": 2386,
-      "updatedAt": "2026-11-01T07:09:40Z"
+      "updatedAt": "2026-11-02T00:44:32Z"
     }
   ]
 }
