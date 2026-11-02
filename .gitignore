@@ -99,7 +99,6 @@ doubao-record/
 doubao-reference-audit/
 doubao-research-proposal/
 doubao-sentiment-tracker/
-doubao-shortvideo-writing/
 doubao-stock-screening/
 doubao-tiktok-ads-analyst/
 doubao-tiktok-ads-expert/
@@ -129,7 +128,6 @@ lark-attendance/
 lark-base/
 lark-calendar/
 lark-contact/
-lark-doc/
 lark-drive/
 lark-im/
 lark-mail/
@@ -146,9 +144,7 @@ lewis-agent-cards/
 lewis-article-to-cards/
 lewis-hotspot-draft/
 lewis-p3-sidehustle/
-lewis-p6-daily-tip/
 lewis-topic-scout/
-lewis-video-director/
 lewis-video-growth/
 lewis-video-scout/
 lost-deal-review/
@@ -209,7 +205,6 @@ video-assets-lab/
 video-brand-director/
 video-render-qa/
 video-teardown/
-viral-video-topics/
 wechat-gzh-draft/
 wecom-operations/
 weekly-business-briefing/

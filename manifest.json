@@ -2,17 +2,53 @@
   "schema": "skillhub.manifest.v1",
   "repo": "lewisliu620/git-skills",
   "branch": "main",
-  "generatedAt": "2026-11-02T00:44:32Z",
-  "skillCount": 1,
+  "generatedAt": "2026-11-02T00:45:31Z",
+  "skillCount": 5,
   "skills": [
     {
-      "name": "lewis-video-conversion",
-      "dir": "lewis-video-conversion",
+      "name": "lewis-video-director",
+      "dir": "lewis-video-director",
       "version": "1.0.0",
       "note": "初始化导入",
       "fileCount": 1,
-      "sizeBytes": 2386,
-      "updatedAt": "2026-11-02T00:44:32Z"
+      "sizeBytes": 9925,
+      "updatedAt": "2026-11-02T00:45:31Z"
+    },
+    {
+      "name": "doubao-shortvideo-writing",
+      "dir": "doubao-shortvideo-writing",
+      "version": "1.0.0",
+      "note": "豆包自带导入",
+      "fileCount": 6,
+      "sizeBytes": 36038,
+      "updatedAt": "2026-11-02T00:45:31Z"
+    },
+    {
+      "name": "lark-doc",
+      "dir": "lark-doc",
+      "version": "1.0.0",
+      "note": "豆包自带导入",
+      "fileCount": 27,
+      "sizeBytes": 305616,
+      "updatedAt": "2026-11-02T00:45:31Z"
+    },
+    {
+      "name": "lewis-p6-daily-tip",
+      "dir": "lewis-p6-daily-tip",
+      "version": "1.0.0",
+      "note": "增量补录",
+      "fileCount": 1,
+      "sizeBytes": 12037,
+      "updatedAt": "2026-11-02T00:45:31Z"
+    },
+    {
+      "name": "viral-video-topics",
+      "dir": "viral-video-topics",
+      "version": "1.0.0",
+      "note": "增量补录",
+      "fileCount": 5,
+      "sizeBytes": 59572,
+      "updatedAt": "2026-11-02T00:45:31Z"
     }
   ]
 }
