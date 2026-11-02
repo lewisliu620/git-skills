@@ -357,6 +357,8 @@ def main():
     to_add, to_remove, skipped = [], [], []
     for it in items:
         if it["publish"]:
+            if it["dir"] in tracked:
+                continue  # 已上架且仍勾选：无需动作
             if it["exists"]:
                 to_add.append(it)
             else:
@@ -379,6 +381,9 @@ def main():
         print("\n[dry-run] 未执行 git 操作。确认无误后加 --apply 执行。")
         return 0
     if not to_add and not to_remove:
+        if args.write_back:
+            write_back(args.base_token, args.table_id, [], [], skipped)
+            print("已回填表格：上次同步版本 / 时间 / 本地存在。")
         print("\n无变更，无需同步。")
         return 0
 
